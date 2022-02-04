@@ -15,7 +15,7 @@ public class LineResponse {
     private LocalDateTime modifiedDate;
 
     private LineResponse(Long id, String name, String color, LocalDateTime createdDate, LocalDateTime modifiedDate) {
-        this(id, name, color, null, createdDate, modifiedDate);
+        this(id, name, color, new ArrayList<>(), createdDate, modifiedDate);
     }
 
     private LineResponse(Long id,

@@ -39,9 +39,7 @@ public class Sections {
     }
 
     private boolean doesContains(Long downStationId) {
-        return sections.stream().anyMatch(s ->
-                downStationId.equals(s.getUpStation().getId()) ||
-                        downStationId.equals(s.getDownStation().getId()));
+        return sections.stream().anyMatch(s -> s.doesContains(downStationId));
     }
 
     public void add(Section section) {

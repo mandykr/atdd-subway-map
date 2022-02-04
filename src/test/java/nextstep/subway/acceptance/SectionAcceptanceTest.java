@@ -14,18 +14,17 @@ import static nextstep.subway.acceptance.StationStepDefinition.*;
 
 @DisplayName("지하철 구간 관리 기능")
 public class SectionAcceptanceTest extends AcceptanceTest {
-    Long 강남역;
-    Long 양재역;
+    ExtractableResponse<Response> 강남역;
+    ExtractableResponse<Response> 양재역;
     Map<String, String> lineParams;
     ExtractableResponse<Response> lineResponse;
-    Long lineId;
 
     @BeforeEach
     public void setUp() {
         super.setUp();
 
-        강남역 = 지하철역_생성_요청("강남역").body().jsonPath().getLong("id");
-        양재역 = 지하철역_생성_요청("양재역").body().jsonPath().getLong("id");
+        강남역 = 지하철역_생성_요청("강남역");
+        양재역 = 지하철역_생성_요청("양재역");
         lineParams = 지하철_노선_파라미터_생성(
                 "신분당선",
                 "bg-red-600",
@@ -33,7 +32,6 @@ public class SectionAcceptanceTest extends AcceptanceTest {
                 양재역,
                 10);
         lineResponse = 지하철_노선_생성_요청(lineParams);
-        lineId = lineResponse.body().jsonPath().getLong("id");
     }
 
     /**
@@ -48,11 +46,11 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @Test
     void createSection() {
         // given
-        Long 양재시민의숲역 = 지하철역_생성_요청("양재시민의숲역").body().jsonPath().getLong("id");
+        ExtractableResponse<Response> 양재시민의숲역 = 지하철역_생성_요청("양재시민의숲역");
 
         // when
         Map<String, String> params = 지하철_구간_파라미터_생성(양재역, 양재시민의숲역, 10);
-        ExtractableResponse<Response> response = 지하철_구간_생성_요청(lineId, params);
+        ExtractableResponse<Response> response = 지하철_구간_생성_요청(lineResponse, params);
 
         // then
         지하철_구간_생성_완료(response);
@@ -71,12 +69,12 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @Test
     void createSectionWithInvalidUpStation() {
         // given
-        Long 청계산입구역 = 지하철역_생성_요청("청계산입구역").body().jsonPath().getLong("id");
-        Long 양재시민의숲역 = 지하철역_생성_요청("양재시민의숲역").body().jsonPath().getLong("id");
+        ExtractableResponse<Response> 청계산입구역 = 지하철역_생성_요청("청계산입구역");
+        ExtractableResponse<Response> 양재시민의숲역 = 지하철역_생성_요청("양재시민의숲역");
 
         // when
         Map<String, String> params = 지하철_구간_파라미터_생성(청계산입구역, 양재시민의숲역, 10);
-        ExtractableResponse<Response> response = 지하철_구간_생성_요청(lineId, params);
+        ExtractableResponse<Response> response = 지하철_구간_생성_요청(lineResponse, params);
 
         // then
         지하철_구간_생성_실패(response);
@@ -94,7 +92,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     void createSectionWithInvalidDownStation() {
         // when
         Map<String, String> params = 지하철_구간_파라미터_생성(양재역, 강남역, 10);
-        ExtractableResponse<Response> response = 지하철_구간_생성_요청(lineId, params);
+        ExtractableResponse<Response> response = 지하철_구간_생성_요청(lineResponse, params);
 
         // then
         지하철_구간_생성_실패(response);
@@ -113,15 +111,14 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @Test
     void deleteSection() {
         // given
-        Long 양재시민의숲역 = 지하철역_생성_요청("양재시민의숲역").body().jsonPath().getLong("id");
+        ExtractableResponse<Response> 양재시민의숲역 = 지하철역_생성_요청("양재시민의숲역");
         Map<String, String> params = 지하철_구간_파라미터_생성(양재역, 양재시민의숲역, 10);
-        ExtractableResponse<Response> createResponse = 지하철_구간_생성_요청(lineId, params);
-        Long downStationId = createResponse.body().jsonPath().getLong("downStationId");
+        ExtractableResponse<Response> createResponse = 지하철_구간_생성_요청(lineResponse, params);
 
         // when
-        ExtractableResponse<Response> response = 지하철_구간_삭제_요청(lineId, downStationId);
+        ExtractableResponse<Response> response = 지하철_구간_삭제_요청(lineResponse, createResponse);
 
-                // then
+        // then
         지하철_구간_삭제_완료(response);
     }
 
@@ -138,12 +135,12 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @Test
     void deleteSectionWithInvalidDownStation() {
         // given
-        Long 양재시민의숲역 = 지하철역_생성_요청("양재시민의숲역").body().jsonPath().getLong("id");
+        ExtractableResponse<Response> 양재시민의숲역 = 지하철역_생성_요청("양재시민의숲역");
         Map<String, String> params = 지하철_구간_파라미터_생성(양재역, 양재시민의숲역, 10);
-        ExtractableResponse<Response> createResponse = 지하철_구간_생성_요청(lineId, params);
+        ExtractableResponse<Response> createResponse = 지하철_구간_생성_요청(lineResponse, params);
 
         // when
-        ExtractableResponse<Response> response = 지하철_구간_삭제_요청(lineId, 양재역);
+        ExtractableResponse<Response> response = 지하철_구간_삭제_요청(lineResponse, 양재역);
 
         // then
         지하철_구간_삭제_실패(response);
@@ -160,7 +157,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     @Test
     void deleteSectionWhenOnlyOne() {
         // when
-        ExtractableResponse<Response> response = 지하철_구간_삭제_요청(lineId, 양재역);
+        ExtractableResponse<Response> response = 지하철_구간_삭제_요청(lineResponse, 양재역);
 
         // then
         지하철_구간_삭제_실패(response);

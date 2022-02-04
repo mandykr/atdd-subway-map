@@ -13,18 +13,16 @@ import static nextstep.subway.acceptance.StationStepDefinition.지하철역_생�
 
 @DisplayName("지하철 노선 관리 기능")
 class LineAcceptanceTest extends AcceptanceTest {
-    Long 강남역;
-    Long 양재역;
+    ExtractableResponse<Response> 강남역;
+    ExtractableResponse<Response> 양재역;
     String 신분당선 = "신분당선";
     Map<String, String> createParams;
-    ExtractableResponse<Response> createResponse;
-    String createUri;
 
     @BeforeEach
     public void setUp() {
         super.setUp();
-        강남역 = 지하철역_생성_요청("강남역").body().jsonPath().getLong("id");
-        양재역 = 지하철역_생성_요청("양재역").body().jsonPath().getLong("id");
+        강남역 = 지하철역_생성_요청("강남역");
+        양재역 = 지하철역_생성_요청("양재역");
 
         createParams = 지하철_노선_파라미터_생성(
                 신분당선,
@@ -32,8 +30,6 @@ class LineAcceptanceTest extends AcceptanceTest {
                 강남역,
                 양재역,
                 10);
-        createResponse = 지하철_노선_생성_요청(createParams);
-        createUri = createResponse.header("Location");
     }
     /**
      * Given 상행 지하철역 생성하고
@@ -44,6 +40,9 @@ class LineAcceptanceTest extends AcceptanceTest {
     @DisplayName("지하철 노선 생성")
     @Test
     void createLine() {
+        // when
+        ExtractableResponse<Response> createResponse = 지하철_노선_생성_요청(createParams);
+
         // then
         지하철_노선_생성_완료(createResponse);
     }
@@ -60,8 +59,8 @@ class LineAcceptanceTest extends AcceptanceTest {
     @Test
     void getLines() {
         // given
-        Long 신도림역 = 지하철역_생성_요청("신도림역").body().jsonPath().getLong("id");
-        Long 문래역 = 지하철역_생성_요청("문래역").body().jsonPath().getLong("id");
+        ExtractableResponse<Response> 신도림역 = 지하철역_생성_요청("신도림역");
+        ExtractableResponse<Response> 문래역 = 지하철역_생성_요청("문래역");
         String 호선2 = "2호선";
         Map<String, String> params = 지하철_노선_파라미터_생성(
                 호선2,
@@ -89,6 +88,10 @@ class LineAcceptanceTest extends AcceptanceTest {
     @DisplayName("지하철 노선 조회")
     @Test
     void getLine() {
+        // given
+        ExtractableResponse<Response> createResponse = 지하철_노선_생성_요청(createParams);
+        String createUri = createResponse.header("Location");
+
         // when
         ExtractableResponse<Response> response = 지하철_노선_조회_요청(createUri);
 
@@ -106,6 +109,10 @@ class LineAcceptanceTest extends AcceptanceTest {
     @DisplayName("지하철 노선 수정")
     @Test
     void updateLine() {
+        // given
+        ExtractableResponse<Response> createResponse = 지하철_노선_생성_요청(createParams);
+        String createUri = createResponse.header("Location");
+
         // when
         String 구분당선 = "구분당선";
         Map<String, String> updateParams = 지하철_노선_파라미터_생성(
@@ -130,6 +137,10 @@ class LineAcceptanceTest extends AcceptanceTest {
     @DisplayName("지하철 노선 삭제")
     @Test
     void deleteLine() {
+        // given
+        ExtractableResponse<Response> createResponse = 지하철_노선_생성_요청(createParams);
+        String createUri = createResponse.header("Location");
+
         // when
         ExtractableResponse<Response> response = 지하철_노선_삭제_요청(createUri);
 
@@ -148,6 +159,9 @@ class LineAcceptanceTest extends AcceptanceTest {
     @DisplayName("중복이름으로 지하철 노선 생성")
     @Test
     void createLineWithDuplicateName() {
+        // given
+        ExtractableResponse<Response> createResponse = 지하철_노선_생성_요청(createParams);
+
         // when
         ExtractableResponse<Response> response = 지하철_노선_생성_요청(createParams);
 

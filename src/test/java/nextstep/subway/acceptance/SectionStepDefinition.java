@@ -12,32 +12,39 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SectionStepDefinition {
-    public static Map<String, String> 지하철_구간_파라미터_생성(Long upStationId, Long downStationId, int distance) {
+    public static Map<String, String> 지하철_구간_파라미터_생성(
+            ExtractableResponse<Response> upStation,
+            ExtractableResponse<Response> downStation,
+            int distance) {
         HashMap<String, String> params = new HashMap<>();
-        params.put("upStationId", String.valueOf(upStationId));
-        params.put("downStationId", String.valueOf(downStationId));
+        params.put("upStationId", upStation.body().jsonPath().getString("id"));
+        params.put("downStationId", downStation.body().jsonPath().getString("id"));
         params.put("distance", String.valueOf(distance));
 
         return params;
     }
 
-    public static ExtractableResponse<Response> 지하철_구간_생성_요청(Long lineId, Map<String, String> params) {
+    public static ExtractableResponse<Response> 지하철_구간_생성_요청(
+            ExtractableResponse<Response> lineResponse,
+            Map<String, String> params) {
         return RestAssured
                 .given().log().all()
                 .body(params)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when()
-                .post("/lines/{id}/sections", lineId)
+                .post("/lines/{id}/sections", lineResponse.body().jsonPath().getLong("id"))
                 .then().log().all()
                 .extract();
     }
 
-    public static ExtractableResponse<Response> 지하철_구간_삭제_요청(Long lineId, Long stationId) {
+    public static ExtractableResponse<Response> 지하철_구간_삭제_요청(
+            ExtractableResponse<Response> lineResponse,
+            ExtractableResponse<Response> station) {
         return RestAssured
                 .given().log().all()
-                .param("stationId", stationId)
+                .param("stationId", station.body().jsonPath().getString("downStationId"))
                 .when()
-                .delete("/lines/{id}/sections", lineId)
+                .delete("/lines/{id}/sections", lineResponse.body().jsonPath().getLong("id"))
                 .then().log().all()
                 .extract();
     }

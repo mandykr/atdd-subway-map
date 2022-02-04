@@ -16,15 +16,15 @@ public class LineStepDefinition {
     public static Map<String, String> 지하철_노선_파라미터_생성(
             String name,
             String color,
-            Long upStationId,
-            Long downStationId,
+            ExtractableResponse<Response> upStation,
+            ExtractableResponse<Response> downStation,
             int distance) {
 
         Map<String, String> params = new HashMap<>();
         params.put("name", name);
         params.put("color", color);
-        params.put("upStationId", String.valueOf(upStationId));
-        params.put("downStationId", String.valueOf(downStationId));
+        params.put("upStationId", upStation.body().jsonPath().getString("id"));
+        params.put("downStationId", downStation.body().jsonPath().getString("id"));
         params.put("distance", String.valueOf(distance));
         return params;
     }

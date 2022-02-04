@@ -23,10 +23,6 @@ public class Line extends BaseEntity {
         this.color = color;
     }
 
-    public void validateNewSection(Long upStationId, Long downStationId) {
-        sections.validateNew(upStationId, downStationId);
-    }
-
     public void addSection(Section section) {
         sections.add(section);
     }

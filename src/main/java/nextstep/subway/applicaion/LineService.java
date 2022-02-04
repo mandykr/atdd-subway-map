@@ -83,7 +83,7 @@ public class LineService {
 
     public SectionResponse addSection(Long id, SectionRequest sectionRequest) {
         Line line = findById(id);
-        line.validateNewSection(
+        line.getSections().validateNew(
                 sectionRequest.getUpStationId(),sectionRequest.getDownStationId());
 
         Section section = createSection(line, sectionRequest);

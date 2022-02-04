@@ -36,6 +36,11 @@ public class Section extends BaseEntity implements Comparable<Section> {
         return downStation.equals(lastDownStation);
     }
 
+    public boolean doesContains(Long stationsID) {
+        return stationsID.equals(upStation.getId()) ||
+                stationsID.equals(downStation.getId());
+    }
+
     public Long getId() {
         return id;
     }
