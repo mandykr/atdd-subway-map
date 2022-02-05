@@ -35,6 +35,11 @@ public class Line extends BaseEntity {
         return sections.getSortedStations();
     }
 
+    public void edit(String name, String color) {
+        this.name = name;
+        this.color = color;
+    }
+
     public Long getId() {
         return id;
     }
@@ -45,11 +50,6 @@ public class Line extends BaseEntity {
 
     public String getColor() {
         return color;
-    }
-
-    public void edit(String name, String color) {
-        this.name = name;
-        this.color = color;
     }
 
     public Sections getSections() {
