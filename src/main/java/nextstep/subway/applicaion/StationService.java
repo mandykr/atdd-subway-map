@@ -4,6 +4,8 @@ import nextstep.subway.applicaion.dto.StationRequest;
 import nextstep.subway.applicaion.dto.StationResponse;
 import nextstep.subway.domain.Station;
 import nextstep.subway.domain.StationRepository;
+import nextstep.subway.error.exception.EntityDuplicateException;
+import nextstep.subway.error.exception.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,15 +15,17 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class StationService {
-    private StationRepository stationRepository;
+    private final StationRepository stationRepository;
 
     public StationService(StationRepository stationRepository) {
         this.stationRepository = stationRepository;
     }
 
     public StationResponse saveStation(StationRequest stationRequest) {
+        checkDuplicated(stationRequest.getName());
+
         Station station = stationRepository.save(new Station(stationRequest.getName()));
-        return createStationResponse(station);
+        return StationResponse.of(station);
     }
 
     @Transactional(readOnly = true)
@@ -29,7 +33,7 @@ public class StationService {
         List<Station> stations = stationRepository.findAll();
 
         return stations.stream()
-                .map(this::createStationResponse)
+                .map(StationResponse::of)
                 .collect(Collectors.toList());
     }
 
@@ -37,12 +41,16 @@ public class StationService {
         stationRepository.deleteById(id);
     }
 
-    private StationResponse createStationResponse(Station station) {
-        return new StationResponse(
-                station.getId(),
-                station.getName(),
-                station.getCreatedDate(),
-                station.getModifiedDate()
-        );
+    private void checkDuplicated(String name) {
+        stationRepository.findByName(name).ifPresent(s -> {
+            throw new EntityDuplicateException(name);
+        });
+    }
+
+    public Station findStationById(Long id) {
+        return stationRepository.findById(id)
+                .orElseThrow(() -> {
+                    throw new EntityNotFoundException(id);
+                });
     }
 }
